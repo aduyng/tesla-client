@@ -1,59 +1,34 @@
-const Tesla = require("tesla-api");
-const _ = require("lodash");
-const tryCatch = require("./tryCatch");
+const Promise = require("bluebird");
 const firebase = require("./firebase");
+const login = require("./login");
+const updateVehicleInfo = require("./updateVehicleInfo");
+const requestAndUpdateChargeState = require("./requestAndUpdateChargeState");
+const requestAndUpdateVehicleState = require("./requestAndUpdateVehicleState");
+const requestAndUpdateClimateState = require("./requestAndUpdateClimateState");
 
-module.exports = async () => {
-  const [teslaLoginError, vehicles] = await tryCatch(
-    Tesla.login({
-      email: process.env.TESLA_ACCOUNT_USERNAME,
-      password: process.env.TESLA_ACCOUNT_PASSWORD,
-    }),
-  );
-  if (teslaLoginError) {
-    console.error(
-      `unable to login to Tesla: ${teslaLoginError}`,
-      teslaLoginError,
-    );
-    throw teslaLoginError;
-  }
+module.exports = () => {
+  console.time(__filename);
   const database = firebase.database();
+  return login()
+    .then(vehicles =>
+      Promise.each(vehicles, vehicle => {
+        console.log(`processing vehicle: ${vehicle.vehicleId}`);
+        const promises = [];
+        promises.push(updateVehicleInfo({ vehicle, database }));
 
-  vehicles.forEach(async vehicle => {
-    await database
-      .ref(`vehicles/${vehicle.vehicleId}`)
-      .update(_.omit(vehicle, "tesla"));
+        console.log(`vehicle state is ${vehicle.state}`);
+        if (vehicle.state === "online") {
+          promises.push(requestAndUpdateChargeState({ vehicle, database }));
+        }
 
-    if (vehicle.state === "online") {
-      const [getChargeStateError, chargeState] = await tryCatch(
-        vehicle.chargeState(),
-      );
-      if (getChargeStateError) {
-        console.warn(`unable to get charge state`, getChargeStateError);
-      }
-      await database
-        .ref(`vehicleChargeStates/${vehicle.vehicleId}`)
-        .update(chargeState);
-    }
+        promises.push(requestAndUpdateVehicleState({ vehicle, database }));
 
-    const [getVehicleStateError, vehicleState] = await tryCatch(
-      vehicle.vehicleState(),
-    );
-    if (getVehicleStateError) {
-      console.warn(`unable to get vehicle state`, getVehicleStateError);
-    }
-    await database
-      .ref(`vehicleStates/${vehicle.vehicleId}`)
-      .update(vehicleState);
+        promises.push(requestAndUpdateClimateState({ vehicle, database }));
 
-    const [getClimateStateError, vehicleClimateState] = await tryCatch(
-      vehicle.climateState(),
-    );
-    if (getClimateStateError) {
-      console.warn(`unable to get climate state`, getClimateStateError);
-    }
-    await database
-      .ref(`vehicleClimateStates/${vehicle.vehicleId}`)
-      .update(vehicleClimateState);
-  });
+        return Promise.all(promises);
+      }),
+    )
+    .finally(() => {
+      console.timeEnd(__filename);
+    });
 };

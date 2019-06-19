@@ -9,6 +9,7 @@
     "lint": "eslint src"
   },
   "dependencies": {
+    "bluebird": "^3.5.5",
     "dotenv": "^8.0.0",
     "firebase-admin": "^8.1.0",
     "lodash": "^4.17.11",

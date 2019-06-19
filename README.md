@@ -1,4 +1,4 @@
-# tesla-firebase-cloud-functions
+# tesla-client
 A collection of Firebase Cloud functions to report the car status using Tesla Unofficial API
 
 I set up this repo with my Raspberry Pi as a cronjob to report the status of the vehicle very 30 minutes. 

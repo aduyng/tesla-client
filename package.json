@@ -1,0 +1,23 @@
+{
+  "name": "@aduyng/tesla-client",
+  "description": "A NodeJS application to report my Tesla status",
+  "scripts": {
+    "dev": "nodemon",
+    "start": "node src/index",
+    "lint": "eslint src"
+  },
+  "dependencies": {
+    "dotenv": "^8.0.0",
+    "firebase-admin": "^8.1.0",
+    "lodash": "^4.17.11",
+    "tesla-api": "^2.0.4"
+  },
+  "devDependencies": {
+    "eslint": "^5.16.0",
+    "eslint-config-google": "^0.13.0",
+    "eslint-config-prettier": "^5.0.0",
+    "eslint-plugin-prettier": "^3.1.0",
+    "nodemon": "^1.19.1",
+    "prettier": "^1.18.2"
+  }
+}

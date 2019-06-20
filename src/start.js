@@ -2,9 +2,9 @@ const Promise = require("bluebird");
 const firebase = require("./firebase");
 const login = require("./login");
 const updateVehicleInfo = require("./updateVehicleInfo");
-const requestAndUpdateChargeState = require("./requestAndUpdateChargeState");
-const requestAndUpdateVehicleState = require("./requestAndUpdateVehicleState");
-const requestAndUpdateClimateState = require("./requestAndUpdateClimateState");
+const requestChargeState = require("./requestChargeState");
+const requestVehicleState = require("./requestVehicleState");
+const requestClimateState = require("./requestClimateState");
 
 module.exports = () => {
   console.time(__filename);
@@ -14,18 +14,37 @@ module.exports = () => {
       Promise.each(vehicles, vehicle => {
         console.log(`processing vehicle: ${vehicle.vehicleId}`);
         const promises = [];
-        promises.push(updateVehicleInfo({ vehicle, database }));
 
         console.log(`vehicle state is ${vehicle.state}`);
         if (vehicle.state === "online") {
-          promises.push(requestAndUpdateChargeState({ vehicle, database }));
+          promises.push(
+            requestChargeState({ vehicle, database }).then(charging => {
+              if (charging) {
+                vehicle.charging = charging;
+              }
+            }),
+          );
         }
 
-        promises.push(requestAndUpdateVehicleState({ vehicle, database }));
+        promises.push(
+          requestVehicleState({ vehicle, database }).then(vehicleState => {
+            if (vehicleState) {
+              vehicle.vehicleState = vehicleState;
+            }
+          }),
+        );
 
-        promises.push(requestAndUpdateClimateState({ vehicle, database }));
+        promises.push(
+          requestClimateState({ vehicle, database }).then(climate => {
+            if (climate) {
+              vehicle.climate = climate;
+            }
+          }),
+        );
 
-        return Promise.all(promises);
+        return Promise.all(promises).then(() =>
+          updateVehicleInfo({ vehicle, database }),
+        );
       }),
     )
     .finally(() => {

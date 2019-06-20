@@ -5,7 +5,7 @@
   "scripts": {
     "qc": "npm-run-all --parallel lint",
     "dev": "nodemon",
-    "start": "node -r dotenv/config src/index",
+    "start": "node -r dotenv/config src/dev",
     "lint": "eslint src"
   },
   "dependencies": {

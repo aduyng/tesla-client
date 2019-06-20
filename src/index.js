@@ -1,10 +1,21 @@
-const path = require("path");
-require("dotenv").config({ path: path.join(path.dirname(__filename), ".env") });
+require('./loadEnvConfig');
+const CronJob = require("cron").CronJob;
 const start = require("./start");
 
-start()
-  .then(() => process.exit(0))
-  .catch(error => {
-    console.error(error);
-    process.exit(1);
-  });
+console.log(`job installed with schedule ${process.env.CRON_SCHEDULE}`);
+const job = new CronJob(
+  process.env.CRON_SCHEDULE,
+  () =>
+    start()
+      .then(() => process.exit(0))
+      .catch(error => {
+        console.error(error);
+        process.exit(1);
+      }),
+  null,
+  true,
+  "America/Chicago",
+);
+
+console.log("job started");
+job.start();

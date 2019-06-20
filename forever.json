@@ -1,0 +1,9 @@
+{
+    "uid": "tesla-client",
+    "append": true,
+    "script": "src/index.js",
+    "sourceDir": "/home/pi/tesla-client",
+    "logFile": "/home/pi/tesla-client/logs/forever.log",
+    "outFile": "/home/pi/tesla-client/logs/out.log",
+    "errFile": "/home/pi/tesla-client/logs/error.log"
+}

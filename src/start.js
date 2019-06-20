@@ -43,7 +43,10 @@ module.exports = () => {
         );
 
         return Promise.all(promises).then(() =>
-          updateVehicleInfo({ vehicle, database }),
+          updateVehicleInfo({
+            vehicle: { updatedAt: Date.now(), ...vehicle },
+            database,
+          }),
         );
       }),
     )

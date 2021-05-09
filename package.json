@@ -13,7 +13,7 @@
     "cron": "^1.7.1",
     "dotenv": "^8.0.0",
     "firebase-admin": "^8.1.0",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.21",
     "tesla-api": "^2.0.4"
   },
   "devDependencies": {
